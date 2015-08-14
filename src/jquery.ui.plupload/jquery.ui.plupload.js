@@ -572,9 +572,13 @@ $.widget("ui.plupload", {
 				$('tbody', self.filelist).sortable('destroy');	
 			}
 
+			var length=files.length;
 			$.each(files, function(i, file) {
 				$('#' + file.id).toggle("highlight", function() {
 					$(this).remove();
+					if (--length==0) {
+						self._trigger('updatebuttons',null,{up:up});
+					}
 				});
 			});
 			

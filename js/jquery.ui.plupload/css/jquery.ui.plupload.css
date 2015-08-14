@@ -102,7 +102,7 @@
 	margin: 0;
 }
 
-.plupload_cell {padding: 8px 6px;}
+.plupload_cell {padding: 16px 0px;}
 
 .plupload_file {
 	list-style: none;
@@ -288,7 +288,7 @@
 	height: 11px;
 }
 
-.plupload_progress {width: 60px;}
+.plupload_progress {width: 60px;margin-left: -30px;}
 .plupload_progress_container {padding: 1px;}
 
 

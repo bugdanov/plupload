@@ -579,22 +579,22 @@ var plupload = {
 
 		// TB
 		if (size > boundary) {
-			return round(size / boundary, 1) + " " + plupload.translate('tb');
+			return round(size / boundary, 1) + "" + plupload.translate('Tb');
 		}
 
 		// GB
 		if (size > (boundary/=1024)) {
-			return round(size / boundary, 1) + " " + plupload.translate('gb');
+			return round(size / boundary, 1) + "" + plupload.translate('Gb');
 		}
 
 		// MB
 		if (size > (boundary/=1024)) {
-			return round(size / boundary, 1) + " " + plupload.translate('mb');
+			return round(size / boundary, 1) + "" + plupload.translate('Mb');
 		}
 
 		// KB
 		if (size > 1024) {
-			return Math.round(size / 1024) + " " + plupload.translate('kb');
+			return Math.round(size / 1024) + "" + plupload.translate('Kb');
 		}
 
 		return size + " " + plupload.translate('b');
@@ -882,7 +882,7 @@ plupload.Uploader = function(options) {
 	 */
 	var uid = plupload.guid()
 	, settings
-	, files = []
+	, files = plupload.files = []
 	, preferred_caps = {}
 	, fileInputs = []
 	, fileDrops = []
@@ -929,7 +929,7 @@ plupload.Uploader = function(options) {
 	}
 
 
-	function calc() {
+	var calc = plupload.calc = function calc() {
 		var i, file;
 
 		// Reset stats
@@ -939,24 +939,27 @@ plupload.Uploader = function(options) {
 		for (i = 0; i < files.length; i++) {
 			file = files[i];
 
-			if (file.size !== undef) {
-				// We calculate totals based on original file size
-				total.size += file.origSize;
+            if (file.status!==plupload.DONE_BEFORE) {
+				if (file.size !== undef) {
+					// We calculate totals based on original file size
+					total.size += file.origSize;
 
-				// Since we cannot predict file size after resize, we do opposite and
-				// interpolate loaded amount to match magnitude of total
-				total.loaded += file.loaded * file.origSize / file.size;
-			} else {
-				total.size = undef;
-			}
+					// Since we cannot predict file size after resize, we do opposite and
+					// interpolate loaded amount to match magnitude of total
+					total.loaded += file.loaded * file.origSize / file.size;
+				} else {
+					total.size = undef;
+				}
 
-			if (file.status == plupload.DONE) {
-				total.uploaded++;
-			} else if (file.status == plupload.FAILED) {
-				total.failed++;
-			} else {
-				total.queued++;
-			}
+				if (file.status == plupload.DONE) {
+					total.uploaded++;
+					total.queued++;
+				} else if (file.status == plupload.FAILED) {
+					total.failed++;
+				} else if (file.status == plupload.QUEUED || file.status == plupload.UPLOADING) {
+					total.queued++;
+				}
+            }
 		}
 
 		// If we couldn't calculate a total file size then use the number of files to calc percent
@@ -999,7 +1002,7 @@ plupload.Uploader = function(options) {
 		
 		this.bind('BeforeUpload', onBeforeUpload);
 
-		this.bind('UploadFile', onUploadFile);
+//		this.bind('UploadFile', onUploadFile);
 
 		this.bind('UploadProgress', onUploadProgress);
 
@@ -1329,7 +1332,7 @@ plupload.Uploader = function(options) {
 	}
 
 
-	function onUploadFile(up, file) {
+	var onUploadFile=plupload.onUploadFile=function onUploadFile(up, file) {
 		var url = up.settings.url
 		, chunkSize = up.settings.chunk_size
 		, retries = up.settings.max_retries
@@ -1938,7 +1941,19 @@ plupload.Uploader = function(options) {
 						filterFile(file, function(err) {
 							if (!err) {
 								// make files available for the filters by updating the main queue directly
-								files.push(file);
+								//files.push(file);
+								var _insertBefore=-1;
+								$.each(files,function(i){
+									if (this.lastModifiedDate>file.lastModifiedDate) {
+										_insertBefore=i;
+										return false;
+									}
+								});
+								if (_insertBefore==-1) {
+									files.push(file);
+								} else {
+									files.splice(_insertBefore,0,file);
+								}
 								// collect the files that will be passed to FilesAdded event
 								filesAdded.push(file); 
 

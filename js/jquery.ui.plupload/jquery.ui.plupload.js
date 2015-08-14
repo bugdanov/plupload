@@ -22,11 +22,11 @@
 /**
 jQuery UI based implementation of the Plupload API - multi-runtime file uploading API.
 
-To use the widget you must include _jQuery_ and _jQuery UI_ bundle (including `ui.core`, `ui.widget`, `ui.button`, 
+To use the widget you must include _jQuery_ and _jQuery UI_ bundle (including `ui.core`, `ui.widget`, `ui.button`,
 `ui.progressbar` and `ui.sortable`).
 
-In general the widget is designed the way that you do not usually need to do anything to it after you instantiate it. 
-But! You still can intervenue, to some extent, in case you need to. Although, due to the fact that widget is based on 
+In general the widget is designed the way that you do not usually need to do anything to it after you instantiate it.
+But! You still can intervenue, to some extent, in case you need to. Although, due to the fact that widget is based on
 _jQuery UI_ widget factory, there are some specifics. See examples below for more details.
 
 @example
@@ -58,7 +58,7 @@ _jQuery UI_ widget factory, there are some specifics. See examples below for mor
 @example
 	// Subscribing to the events...
 	// ... on initialization:
-	$('#uploader').plupload({ 
+	$('#uploader').plupload({
 		...
 		viewchanged: function(event, args) {
 			// stuff ...
@@ -102,10 +102,10 @@ _jQuery UI_ widget factory, there are some specifics. See examples below for mor
 	@param {Boolean} [settings.dragdrop=true] Enable ability to add file to the queue by drag'n'dropping them from the desktop.
 	@param {Boolean} [settings.rename=false] Enable ability to rename files in the queue.
 	@param {Boolean} [settings.sortable=false] Enable ability to sort files in the queue, changing their uploading priority.
-	@param {Object} [settings.buttons] Control the visibility of functional buttons. 
+	@param {Object} [settings.buttons] Control the visibility of functional buttons.
 		@param {Boolean} [settings.buttons.browse=true] Display browse button.
 		@param {Boolean} [settings.buttons.start=true] Display start button.
-		@param {Boolean} [settings.buttons.stop=true] Display stop button. 
+		@param {Boolean} [settings.buttons.stop=true] Display stop button.
 	@param {Object} [settings.views] Control various views of the file queue.
 		@param {Boolean} [settings.views.list=true] Enable list view.
 		@param {Boolean} [settings.views.thumbs=false] Enable thumbs view.
@@ -205,6 +205,7 @@ function _(str) {
 }
 
 function renderUI(obj) {		
+  return;
 	obj.id = obj.attr('id');
 
 	obj.html(
@@ -299,7 +300,7 @@ $.widget("ui.plupload", {
 		thumb_height: 60,
 
 		multiple_queues: true, // re-use widget by default
-		dragdrop : true, 
+		dragdrop : true,
 		autostart: false,
 		sortable: false,
 		rename: false
@@ -325,7 +326,7 @@ $.widget("ui.plupload", {
 		this.content = $('.plupload_content', this.element);
 		
 		if ($.fn.resizable) {
-			this.container.resizable({ 
+			this.container.resizable({
 				handles: 's',
 				minHeight: 300
 			});
@@ -360,7 +361,7 @@ $.widget("ui.plupload", {
 			this.stop_button.button({
 				icons: { primary: 'ui-icon-circle-close' }
 			});
-      
+
 			this.list_switcher.button({
 				text: false,
 				icons: { secondary: "ui-icon-grip-dotted-horizontal" }
@@ -394,7 +395,7 @@ $.widget("ui.plupload", {
 		var self = this
 		, id = this.id
 		, uploader
-		, options = { 
+		, options = {
 			container: id + '_buttons',
 			browse_button: id + '_browse'
 		}
@@ -460,6 +461,11 @@ $.widget("ui.plupload", {
 
 				case plupload.FILE_DUPLICATE_ERROR:
 					details = o.sprintf(_("%s already present in the queue."), err.file.name);
+				    if (!uploader.file_duplicate_error_occured) {
+				    	alert(details+" Other duplicates will be silently ignored.");
+				    	uploader.file_duplicate_error_occured=true;
+				    }
+					return;
 					break;
 					
 				case self.FILE_COUNT_ERROR:
@@ -510,7 +516,7 @@ $.widget("ui.plupload", {
 			
 			if (!self.options.buttons.start) {
 				self.start_button.button('disable').hide();
-			} 
+			}
 			
 			if (!self.options.buttons.stop) {
 				self.stop_button.button('disable').hide();
@@ -541,7 +547,7 @@ $.widget("ui.plupload", {
 			self._trigger('ready', null, { up: up });
 		});
 		
-		// uploader internal events must run first 
+		// uploader internal events must run first
 		uploader.init();
 
 		uploader.bind('FileFiltered', function(up, file) {
@@ -572,11 +578,22 @@ $.widget("ui.plupload", {
 				$('tbody', self.filelist).sortable('destroy');	
 			}
 
-			$.each(files, function(i, file) {
-				$('#' + file.id).toggle("highlight", function() {
-					$(this).remove();
+		    var length=files.length;
+
+		    if (length==1) {
+				$('#' + files[0].id).remove();
+				self._trigger('updatebuttons',null,{up: up})
+			
+		    } else {
+				$.each(files, function(i, file) {
+					$('#' + file.id).toggle("highlight", function() {
+						$(this).remove();
+						if (--length==0) {
+							self._trigger('updatebuttons',null,{up: up});
+						};
+					});
 				});
-			});
+		    }
 			
 			if (up.files.length) {
 				// re-initialize sortable
@@ -776,7 +793,7 @@ $.widget("ui.plupload", {
 	*/
 	notify: function(type, message) {
 		var popup = $(
-			'<div class="plupload_message">' + 
+			'<div class="plupload_message">' +
 				'<span class="plupload_message_close ui-icon ui-icon-circle-close" title="'+_('Close')+'"></span>' +
 				'<p><span class="ui-icon"></span>' + message + '</p>' +
 			'</div>'
@@ -842,6 +859,9 @@ $.widget("ui.plupload", {
 		;
 						
 		if (plupload.STARTED === up.state) {			
+
+			$('.plupload_wrapper',this.element).addClass('disable_pointer_events');
+
 			$([])
 				.add(this.stop_button)
 				.add('.plupload_started')
@@ -849,15 +869,27 @@ $.widget("ui.plupload", {
 
 			this.start_button.button('disable');
 
+   		    this.start_button.addClass('plupload_hidden');
+      		this.browse_button.addClass('plupload_hidden');
+
 			if (!this.options.multiple_queues) {
 				this.browse_button.button('disable');
 				up.disableBrowse();
 			}
 							
-			$('.plupload_upload_status', this.element).html(o.sprintf(_('Uploaded %d/%d files'), up.total.uploaded, up.files.length));
+			$(this.element)
+			.find('.plupload_progress_title')
+				.html(o.sprintf('Uploading file %d of %d', up.total.uploaded+1, up.total.queued+up.total.failed))
+        .end()
+			.find('.plupload_speed_status')
+				.html(o.sprintf('%s / %s at %s/s',plupload.formatSize(up.total.loaded),plupload.formatSize(up.total.size),plupload.formatSize(up.total.bytesPerSec)));
+
 			$('.plupload_header_content', this.element).addClass('plupload_header_content_bw');
-		} 
+		}
 		else if (plupload.STOPPED === up.state) {
+
+			$('.plupload_wrapper',this.element).removeClass('disable_pointer_events');
+
 			$([])
 				.add(this.stop_button)
 				.add('.plupload_started')
@@ -868,10 +900,13 @@ $.widget("ui.plupload", {
 			} else {
 				this.start_button.button('disable');
 			}
+
+			this.start_button.removeClass('plupload_hidden');
+			this.browse_button.removeClass('plupload_hidden');
 			
 			if (this.options.multiple_queues) {
 				$('.plupload_header_content', this.element).removeClass('plupload_header_content_bw');
-			} 
+			}
 
 			// if max_file_count defined, only that many files can be queued at once
 			if (this.options.multiple_queues && maxCount && maxCount > filesPending) {
@@ -892,7 +927,12 @@ $.widget("ui.plupload", {
 	},
 
 	
-	_handleFileStatus: function(file) {
+	_handleFileStatus: function _handleFileStatus(file) {
+
+		if (!file._handleFileStatus) {
+		  file._handleFileStatus=_handleFileStatus;
+		}
+
 		var $file = $('#' + file.id), actionClass, iconClass;
 		
 		// since this method might be called asynchronously, file row might not yet be rendered
@@ -901,7 +941,7 @@ $.widget("ui.plupload", {
 		}
 
 		switch (file.status) {
-			case plupload.DONE: 
+			case plupload.DONE:
 				actionClass = 'plupload_done';
 				iconClass = 'plupload_action_icon ui-icon ui-icon-circle-check';
 				break;
@@ -909,12 +949,38 @@ $.widget("ui.plupload", {
 			case plupload.FAILED:
 				actionClass = 'ui-state-error plupload_failed';
 				iconClass = 'plupload_action_icon ui-icon ui-icon-alert';
+				// Set file specific progress
+				$file
+					.find('.plupload_file_percent')
+						.empty()
+						.end()
+					.find('.plupload_file_progress')
+						.css('width', '0%');
 				break;
 
 			case plupload.QUEUED:
+
+				var actionClass='ui-state-default plupload_file';
+				
+				if ($file.hasClass('ui-selected')) {
+					actionClass += " ui-selectee ui-selected";
+				}
+
+			 	$file.attr('class', actionClass);
+
+			    $('.plupload_file_action',$file).addClass('plupload_invisible');
+			    return;
+			    /*			
 				actionClass = 'plupload_delete';
 				iconClass = 'plupload_action_icon ui-icon ui-icon-circle-minus';
+				$file
+					.find('.plupload_file_percent')
+						.empty()
+						.end()
+					.find('.plupload_file_progress')
+						.css('width', '0%');
 				break;
+				*/
 
 			case plupload.UPLOADING:
 				actionClass = 'ui-state-highlight plupload_uploading';
@@ -943,12 +1009,19 @@ $.widget("ui.plupload", {
 						.html(plupload.formatSize(file.size));			
 				break;
 		}
+
+		if ($file.hasClass('ui-selected')) {
+			actionClass += " ui-selectee ui-selected";
+		}
+
 		actionClass += ' ui-state-default plupload_file';
 
 		$file
 			.attr('class', actionClass)
 			.find('.plupload_action_icon')
-				.attr('class', iconClass);
+				.attr('class', iconClass)
+			.find('.plupload_file_action')
+				.removeClass('plupload_hidden');
 	},
 	
 	
@@ -965,12 +1038,16 @@ $.widget("ui.plupload", {
 				.html(up.total.percent + '%')
 				.end()
 			.find('.plupload_total_file_size')
-				.html(plupload.formatSize(up.total.size))
+				.html(plupload.formatSize(up.total.size-up.total.loaded))
 				.end()
-			.find('.plupload_upload_status')
-				.html(o.sprintf(_('Uploaded %d/%d files'), up.total.uploaded, up.files.length));
-	},
+			.find('.plupload_progress_title')
+				.html(o.sprintf('Uploading file %d of %d', up.total.uploaded+1, up.total.queued+up.total.failed))
+        .end()
+			.find('.plupload_speed_status')
+				.html(o.sprintf('%s / %s at %s/s',plupload.formatSize(up.total.loaded),plupload.formatSize(up.total.size),plupload.formatSize(up.total.bytesPerSec)));
 
+
+	},
 
 	_displayThumbs: function() {
 		var self = this
@@ -1052,9 +1129,9 @@ $.widget("ui.plupload", {
 
 			img.onload = function() {
 				var thumb = $('#' + file.id + ' .plupload_file_thumb', self.filelist).html('');
-				this.embed(thumb[0], { 
+				this.embed(thumb[0], {
 					width: self.options.thumb_width,
-					height: self.options.thumb_height, 
+					height: self.options.thumb_height,
 					crop: true,
 					swf_url: o.resolveUrl(self.options.flash_swf_url),
 					xap_url: o.resolveUrl(self.options.silverlight_xap_url)
@@ -1067,7 +1144,11 @@ $.widget("ui.plupload", {
 				setTimeout(cb, 1); // detach, otherwise ui might hang (in SilverLight for example)
 			});
 
-			img.load(file.getSource());
+			try {
+				img.load(file.getSource());
+			} catch(e) {
+				
+			}
 		}
 
 
@@ -1081,9 +1162,15 @@ $.widget("ui.plupload", {
 				return;
 			}
 
+			try {
+				var file=self.getFile($(thumbs.shift()).attr('id'));
+			} catch(e) {
+				return;
+			}
+
 			loading = true;
 
-			preloadThumb(self.getFile($(thumbs.shift()).attr('id')), function() {
+			preloadThumb(file, function() {
 				loading = false;
 				lazyLoad();
 			});
@@ -1100,18 +1187,21 @@ $.widget("ui.plupload", {
 	_addFiles: function(files) {
 		var self = this, file_html, html = '';
 
-		file_html = '<li class="plupload_file ui-state-default plupload_file_loading plupload_delete" id="%id%" style="width:%thumb_width%px;">' +
+		file_html = '<li class="ui-selectee ui-selected ui-state-default plupload_file_loading plupload_delete" id="%id%" style="width:%thumb_width%px;">' +
 			'<div class="plupload_file_thumb" style="width:%thumb_width%px;height:%thumb_height%px;">' +
 				'<div class="plupload_file_dummy ui-widget-content" style="line-height:%thumb_height%px;"><span class="ui-state-disabled">%ext% </span></div>' +
 			'</div>' +
 			'<div class="plupload_file_status">' +
-				'<div class="plupload_file_progress ui-widget-header" style="width: 0%"> </div>' + 
-				'<span class="plupload_file_percent">%percent% </span>' +
+			    '<div class="plupload_file_progress_border">' +
+					'<div class="plupload_file_progress ui-widget-header" style="width: 0%">' +
+				    '</div>' +
+					'<div class="plupload_file_percent">%percent% </div>' +
+				'</div>' +
 			'</div>' +
 			'<div class="plupload_file_name" title="%name%">' +
 				'<span class="plupload_file_name_wrapper">%name% </span>' +
 			'</div>' +						
-			'<div class="plupload_file_action">' +
+			'<div class="plupload_file_action plupload_invisible">' +
 				'<div class="plupload_action_icon ui-icon ui-icon-circle-minus"> </div>' +
 			'</div>' +
 			'<div class="plupload_file_size">%size% </div>' +
@@ -1122,10 +1212,11 @@ $.widget("ui.plupload", {
 			files = [files];
 		}
 
+        var destIndex=0;
 		$.each(files, function(i, file) {
 			var ext = o.Mime.getFileExtension(file.name) || 'none';
 
-			html += file_html.replace(/%(\w+)%/g, function($0, $1) {
+			html = file_html.replace(/%(\w+)%/g, function($0, $1) {
 				switch ($1) {
 					case 'thumb_width':
 					case 'thumb_height':
@@ -1141,9 +1232,25 @@ $.widget("ui.plupload", {
 						return file[$1] || '';
 				}
 			});
+
+      var li=$(html);
+
+      // sort view according to plupload.files order
+			for (var pos=destIndex; pos < plupload.files.length ; ++pos){
+			  if (file==plupload.files[pos]) {
+			  	var next=$('li:eq('+pos+')',self.filelist);
+			  	if (next.length) {
+			  		li.insertBefore(next);
+			  	} else {
+    				self.filelist.append(li);			  		
+			  	}
+          li.addClass('plupload_file');
+			  	break;
+			  }	
+			}
 		});
 
-		self.filelist.append(html);
+//		self.filelist.append(html);
 	},
 
 
@@ -1175,14 +1282,14 @@ $.widget("ui.plupload", {
 		// update or write a new cookie
 		if (this.options.views.remember && $.cookie) {
 			$.cookie('plupload_ui_view', view, { expires: 7, path: '/' });
-		} 
+		}
 	
 		// ugly fix for IE6 - make content area stretchable
 		if (o.Env.browser === 'IE' && o.Env.version < 7) {
 			this.content.attr('style', 'height:expression(document.getElementById("' + this.id + '_container' + '").clientHeight - ' + (view === 'list' ? 132 : 102) + ')');
 		}
 
-		this.container.removeClass('plupload_view_list plupload_view_thumbs').addClass('plupload_view_' + view); 
+		this.container.removeClass('plupload_view_list plupload_view_thumbs').addClass('plupload_view_' + view);
 		this.view_mode = view;
 		this._trigger('viewchanged', null, { view: view });
 	},

@@ -949,6 +949,7 @@ plupload.Uploader = function(options) {
 
 			if (file.status == plupload.DONE) {
 				total.uploaded++;
+				total.queued++;
 			} else if (file.status == plupload.FAILED) {
 				total.failed++;
 			} else {
