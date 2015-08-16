@@ -1187,7 +1187,7 @@ $.widget("ui.plupload", {
 	_addFiles: function(files) {
 		var self = this, file_html, html = '';
 
-		file_html = '<li class="ui-selectee ui-selected ui-state-default plupload_file_loading plupload_delete" id="%id%" style="width:%thumb_width%px;">' +
+		file_html = '<li class="ui-selectee ui-state-default plupload_file_loading plupload_delete" id="%id%" style="width:%thumb_width%px;">' +
 			'<div class="plupload_file_thumb" style="width:%thumb_width%px;height:%thumb_height%px;">' +
 				'<div class="plupload_file_dummy ui-widget-content" style="line-height:%thumb_height%px;"><span class="ui-state-disabled">%ext% </span></div>' +
 			'</div>' +
@@ -1212,7 +1212,7 @@ $.widget("ui.plupload", {
 			files = [files];
 		}
 
-        var destIndex=0;
+    var destIndex=0;
 		$.each(files, function(i, file) {
 			var ext = o.Mime.getFileExtension(file.name) || 'none';
 
