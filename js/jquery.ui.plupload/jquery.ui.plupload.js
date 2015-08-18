@@ -461,10 +461,7 @@ $.widget("ui.plupload", {
 
 				case plupload.FILE_DUPLICATE_ERROR:
 					details = o.sprintf(_("%s already present in the queue."), err.file.name);
-				    if (!uploader.file_duplicate_error_occured) {
-				    	alert(details+" Other duplicates will be silently ignored.");
-				    	uploader.file_duplicate_error_occured=true;
-				    }
+				    ++uploader.file_duplicate_count;
 					return;
 					break;
 					
@@ -555,6 +552,10 @@ $.widget("ui.plupload", {
 		});
 		
 		uploader.bind('FilesAdded', function(up, files) {
+			if (!files.length) {
+				return;
+			}
+			
 			self._trigger('selected', null, { up: up, files: files } );
 
 			// re-enable sortable

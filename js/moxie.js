@@ -1966,6 +1966,7 @@ define('moxie/core/EventTarget', [
 			@protected
 			*/
 			trigger: function() {
+				console.log('trigger',this,arguments);
 				return this.dispatchEvent.apply(this, arguments);
 			},
 			

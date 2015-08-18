@@ -993,9 +993,11 @@ plupload.Uploader = function(options) {
 
 
 	function bindEventListeners() {
-		this.bind('FilesAdded FilesRemoved', function(up) {
-			up.trigger('QueueChanged');
-			up.refresh();
+		this.bind('FilesAdded FilesRemoved', function(up,files) {
+			if (files.length) {
+				up.trigger('QueueChanged');
+				up.refresh();
+			}
 		});
 
 		this.bind('CancelUpload', onCancelUpload);
@@ -1985,10 +1987,8 @@ plupload.Uploader = function(options) {
 
 			if (queue.length) {
 				o.inSeries(queue, function() {
-					// if any files left after filtration, trigger FilesAdded
-					if (filesAdded.length) {
-						self.trigger("FilesAdded", filesAdded);
-					}
+					// even if no files left after filtration, trigger FilesAdded
+					self.trigger("FilesAdded", filesAdded);
 				});
 			}
 		},
