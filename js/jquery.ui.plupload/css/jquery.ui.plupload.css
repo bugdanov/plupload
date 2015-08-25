@@ -19,8 +19,8 @@
 }
 
 .plupload_container {
-	_height: 300px;
-	min-height: 300px;
+/*	_height: 300px;*/
+/*	min-height: 300px;*/
 	position: relative;
 }
 
@@ -64,11 +64,13 @@
 }
 
 .plupload_view_switch {
-	position: absolute;
-	right: 16px;
-	bottom: 8px;
-	margin: 0;
+	/* position: absolute; */
+	/* right: 16px; */
+	/* bottom: 8px; */
+	/* margin: 0; */
 	display: none;
+	float: right;
+	margin-right: 6px;
 }
 
 .plupload_view_switch .ui-button {
@@ -141,6 +143,7 @@
 
 .plupload_buttons { 
 	position: relative;
+	margin-left: 6px;
 }
 
 /* list view */
@@ -325,7 +328,7 @@
 	display: block;
 }
 
-.plupload_buttons, .plupload_upload_status {float: left}
+.plupload_buttons, .plupload_upload_status {/* float: left */}
 
 .plupload_message {
 	position: absolute;

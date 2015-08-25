@@ -324,11 +324,10 @@ $.widget("ui.plupload", {
 		this.container = $('.plupload_container', this.element).attr('id', id + '_container');	
 
 		this.content = $('.plupload_content', this.element);
-		
+	
 		if ($.fn.resizable) {
 			this.container.resizable({
-				handles: 's',
-				minHeight: 300
+				handles: 's'
 			});
 		}
 		
@@ -349,27 +348,27 @@ $.widget("ui.plupload", {
 		
 		if ($.ui.button) {
 			this.browse_button.button({
-				icons: { primary: 'ui-icon-circle-plus' },
+//				icons: { primary: 'ui-icon-circle-plus' },
 				disabled: true
 			});
 			
 			this.start_button.button({
-				icons: { primary: 'ui-icon-circle-arrow-e' },
+//				icons: { primary: 'ui-icon-circle-arrow-e' },
 				disabled: true
 			});
 			
 			this.stop_button.button({
-				icons: { primary: 'ui-icon-circle-close' }
+//				icons: { primary: 'ui-icon-circle-close' }
 			});
 
 			this.list_switcher.button({
 				text: false,
-				icons: { secondary: "ui-icon-grip-dotted-horizontal" }
+//				icons: { secondary: "ui-icon-grip-dotted-horizontal" }
 			});
 
 			this.thumbs_switcher.button({
 				text: false,
-				icons: { secondary: "ui-icon-image" }
+//				icons: { secondary: "ui-icon-image" }
 			});
 		}
 		
@@ -1117,9 +1116,10 @@ $.widget("ui.plupload", {
 			}
 
 			onLast(self.window, 'resize', mpl);
+			
 			onLast(self.content, 'scroll',  mpl);
 
-			self.element.on('viewchanged selected', mpl);
+			self.element.on('viewchanged selected lazyload', mpl);
 
 			mpl();
 		}
