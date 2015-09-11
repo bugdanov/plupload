@@ -1154,7 +1154,7 @@ $.widget("ui.plupload", {
 
 
 		function lazyLoad() {
-			if (self.view_mode !== 'thumbs' || loading) {
+			if (self.view_mode !== 'thumbs' || loading || self.uploader.state==plupload.STARTED) {
 				return;
 			}	
 
