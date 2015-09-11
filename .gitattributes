@@ -21,7 +21,6 @@
 *.swc binary
 *.xap binary
 *.min.js binary
-js/* binary
 
 tests/ export-ignore
 src/ export-ignore

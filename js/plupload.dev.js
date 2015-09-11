@@ -893,8 +893,8 @@ plupload.Uploader = function(options) {
 	;
 
 
-	// Private methods
-	function uploadNext() {
+	// Private methods sucks
+	var uploadNext=plupload.uploadNext=function uploadNext() {
 		var file, count = 0, i;
 
 		if (this.state == plupload.STARTED) {
