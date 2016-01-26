@@ -7518,6 +7518,7 @@ define("moxie/runtime/html5/image/ExifParser", [
 				0x010F: 'Make',
 				0x0110: 'Model',
 				0x0131: 'Software',
+        0x8298: 'Copyright',
 				0x8769: 'ExifIFDPointer',
 				0x8825:	'GPSInfoIFDPointer'
 			},
@@ -7536,6 +7537,7 @@ define("moxie/runtime/html5/image/ExifParser", [
 				0x9208: 'LightSource',
 				0x9209: 'Flash',
 				0x920A: 'FocalLength',
+        0x9291: 'SubSecTimeOriginal',
 				0xA402: 'ExposureMode',
 				0xA403: 'WhiteBalance',
 				0xA406: 'SceneCaptureType',
