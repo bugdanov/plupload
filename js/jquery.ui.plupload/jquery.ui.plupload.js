@@ -792,6 +792,17 @@ $.widget("ui.plupload", {
 	@param {String} message The text message to display.
 	*/
 	notify: function(type, message) {
+
+    if (window.top && window.top.$ && window.top.$.notify) {
+      window.top.$.notify({
+        message: message
+      }, {
+        newest_on_top: true,
+        type: type
+      });
+      return;
+    }
+
 		var popup = $(
 			'<div class="plupload_message">' +
 				'<span class="plupload_message_close ui-icon ui-icon-circle-close" title="'+_('Close')+'"></span>' +
