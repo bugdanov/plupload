@@ -1419,7 +1419,11 @@ plupload.Uploader = function(options) {
 
 				// Handle chunk response
 				if (curChunkSize < blob.size) {
-					chunkBlob.destroy();
+					try {
+            chunkBlob.destroy();
+          } catch(e) {
+            console.log(e);
+          }
 
 					offset += curChunkSize;
 					file.loaded = Math.min(offset, blob.size);
@@ -1944,17 +1948,17 @@ plupload.Uploader = function(options) {
 							if (!err) {
 								// make files available for the filters by updating the main queue directly
 								//files.push(file);
-								var _insertBefore=-1;
+								file._insertBefore=-1;
 								$.each(files,function(i){
 									if (this.lastModifiedDate>file.lastModifiedDate) {
-										_insertBefore=i;
+										file._insertBefore=i;
 										return false;
 									}
 								});
-								if (_insertBefore==-1) {
+								if (file._insertBefore==-1) {
 									files.push(file);
 								} else {
-									files.splice(_insertBefore,0,file);
+									files.splice(file._insertBefore,0,file);
 								}
 								// collect the files that will be passed to FilesAdded event
 								filesAdded.push(file); 
@@ -1991,6 +1995,8 @@ plupload.Uploader = function(options) {
 					self.trigger("FilesAdded", filesAdded);
 				});
 			}
+
+      return filesAdded;
 		},
 
 		/**
